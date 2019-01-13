@@ -1,0 +1,3 @@
+#!/bin/bash
+
+usenet $(pwgen -s 32 1)

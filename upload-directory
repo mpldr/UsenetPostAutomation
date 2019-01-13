@@ -1,0 +1,11 @@
+#!/bin/bash
+pwd="$(pwd)/"
+
+for d in ./*/ 
+do
+	echo $d;
+	cd "$pwd$d"
+	#usenet ${PWD##*/}
+	upload
+done
+

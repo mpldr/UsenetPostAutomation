@@ -1,0 +1,46 @@
+#!/bin/bash
+
+name=""
+dir=${PWD##*/}
+if [ $# == 1 ]; then
+	name=$1
+else
+	echo "What is the name of this upload?"
+	read name
+	echo ""
+fi
+echo "Uploading $(pwd)"
+echo "Creating temporary Folders"
+mkdir $name
+mv * $name 2> /dev/null
+
+mkdir temp
+
+echo -n "Packing \"$name.rar\"..."
+
+rar a -r -rr10 -s -m5 -idq -hp$(cat ~/.usenetpwd) -v16384k ./temp/$name.rar ./$name/
+
+echo "done"
+echo -n "Creating Parity..."
+
+cd temp
+par2create -a$name -r10 ./* > /dev/null
+
+echo "done"
+echo -n "Starting Upload..."
+nyuu -C ~/.nyuu.config -o "../$dir{{$(cat ~/.usenetpwd)}}.nzb" --minify --comment "$name" -r keep $(ls)
+echo "done"
+cd ..
+echo -n "Writing nzblnk to file..."
+echo "<a href=\"nzblnk:?t=$(php -r "echo urlencode(\"$dir\");")&h=$(php -r "echo urlencode(\"$name\");")&p=$(cat ~/.usenetpwd)\">$dir</a>" > nzblnk 2> /dev/null
+echo "done"
+
+echo -n "Cleaning Directory..."
+rm -rf temp
+mv $name/* ./
+rm -rf $name
+echo done
+
+echo Changing Password
+echo $(pwgen -s 16 1) > ~/.usenetpwd
+
