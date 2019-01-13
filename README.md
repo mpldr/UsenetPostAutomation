@@ -17,3 +17,4 @@ Automates the upload of files/folders into the Usenet
 # ToDo
 - [ ] allow more specific settings
 - [ ] post-specific settings
+- [ ] create installer
