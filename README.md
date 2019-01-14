@@ -8,11 +8,7 @@ Automates the upload of files/folders into the Usenet
 - `upload-directory` Automated upload of all subdirectories
 
 # Requirements
-- par2cmdline
-- rar
-- php (for creating nzblnk)
-- [nyuu](https://github.com/animetosho/Nyuu)
-- pwgen
+- see INSTALLATION.md
 
 # ToDo
 - [ ] allow more specific settings

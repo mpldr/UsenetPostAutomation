@@ -42,7 +42,7 @@ if [[ $installmode == "pacman" ]]; then
 	if [[ $? -eq 0 ]]; then
 		echo "found";
 	else
-		echo "not installed";
+		echo "not found";
 		installrar="true"
 	fi
 
@@ -106,22 +106,35 @@ if [[ $installmode == "pacman" ]]; then
 		fi
 	fi
 	
-	echo -n "npm..........."
-	pacman -Ql | grep ^npm > /dev/null
-	if [[ $? -eq 0 ]]; then
+	installnyuu="false";
+	echo -n "nyuu..........";
+	command -v nyuu > /dev/null;
+	if [[ $? == 0 ]]; then
 		echo "found";
 	else
-		sudo pacman -S npm --noconfirm >> ./install.log;
-		if [[ $? -eq 0 ]]; then
-			echo "installed";
-		else
-			echo "failed";
-			echo "Unable to install npm. Please see ./install.log for output";
-			exit 5;
-		fi
+		echo "missing";
+		installnyuu="true";
 	fi
-	
-	if [[ installrar -eq "true" ]]; then
+
+	if [[ $installnyuu == "true" ]]; then
+		echo -n "nodejs........"
+		pacman -Ql | grep ^nodejs > /dev/null
+		if [[ $? -eq 0 ]]; then
+			echo "found";
+		else
+			sudo pacman -S nodejs --noconfirm >> ./install.log;
+			if [[ $? -eq 0 ]]; then
+				echo "installed";
+			else
+				echo "failed";
+				echo "Unable to install nodejs. Please see ./install.log for output";
+				exit 9;
+			fi
+		fi
+
+	fi
+
+	if [[ $installrar == "true" ]]; then
 		echo "Installation of rar requires an AUR-Client";
 
 		aurclient="none";
@@ -139,7 +152,7 @@ if [[ $installmode == "pacman" ]]; then
 			aurclient="yaourt";
 		fi
 
-		if [[ aurclient -eq "none" ]]; then
+		if [[ $aurclient == "none" ]]; then
 			echo "No supported AUR-Client found.";
 			echo -n "Installing yay..."
 			git clone https://aur.archlinux.org/yay.git >> ./install.log 2>> ./install.log;
@@ -185,11 +198,67 @@ if [[ $installmode == "pacman" ]]; then
 		fi
 	fi
 
-	echo "Is nyuu already installed?";
-	command -v nyuu > /dev/null;
-	if [[ $? == 0 ]]; then
-		echo "found."
-	else
-		echo "nope"
+	echo "";
+	echo "Everything will be installed to: ~/.bin/upa";
+	mkdir -p ~/.bin/upa >> ./install.log
+	if [[ $? != 0 ]]; then
+		echo "Unable to create Path ~/.bin/upa";
+		exit 10;
 	fi
+
+	originalfolder=$(pwd);
+	cd ~/.bin/upa/
+
+	if [[ $installnyuu == "true" ]]; then
+		sudo rm -rf Nyuu;
+		echo -n "Cloning nyuu..............";
+		git clone https://github.com/animetosho/Nyuu.git >> $originalfolder/install.log 1>> $originalfolder/install.log 2>> $originalfolder/install.log
+		if [[ $? -eq 0 ]]; then
+			echo "successful";
+			cd Nyuu;
+
+			echo -n "Checking for npm..........";
+			pacman -Q | grep ^git > /dev/null
+			if [[ $? -eq 0 ]]; then
+				echo "found";
+			else
+				sudo pacman -S git --noconfirm >> ./install.log;
+				if [[ $? -eq 0 ]]; then
+					echo "installed";
+				else
+					echo "failed";
+					echo "Unable to install npm. Please see ./install.log for output";
+					exit 12;
+				fi
+			fi
+
+			echo -n "installing dependencies..."
+			npm install >> $originalfolder/install.log 1>> $originalfolder/install.log 2>> $originalfolder/install.log;
+			if [[ $? == 0 ]]; then
+				echo "success"
+
+				sudo ln -s ~/.bin/upa/Nyuu/bin/nyuu.js /usr/bin/nyuu
+				sudo chmod a+x bin/nyuu.js
+
+				command -v nyuu > /dev/null
+				if [[ $? == 0 ]]; then
+					echo "nyuu installation was successful"
+				else
+					echo "nyuu installation failed. Please ensure that nyuu is available before running this installer again.";
+					exit 14
+				fi
+			else
+				echo "failed";
+				echo "Unable to install nyuu dependencies. Please try installing it manually."
+				exit 14;
+			fi
+		else
+			echo "failed";
+			echo "Unable to clone nyuu. Please see ./install.log for information";
+			exit 11;
+		fi
+
+	fi
+
+
 fi
