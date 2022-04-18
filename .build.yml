@@ -1,0 +1,14 @@
+image: archlinux
+packages:
+  - git
+secrets:
+  - a4a77b05-94e0-443c-9408-b2d81f7263fe
+  - b15309e0-8156-44c8-aa7c-58c0f0b7d503
+shell: false
+sources:
+- https://git.sr.ht/~poldi1405/upa
+tasks:
+  - mirror-to-github: |
+      git clone --mirror https://git.sr.ht/~poldi1405/upa/
+      cd upa.git
+      git push --mirror git@github.com:mpldr/UsenetPostAutomation.git
