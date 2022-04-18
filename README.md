@@ -11,7 +11,7 @@ Automates the upload of files/folders into the Usenet
 
 # Requirements
 
-- see INSTALLATION.md
+- see [INSTALL.md](./INSTALL.md)
 
 # ToDo
 
